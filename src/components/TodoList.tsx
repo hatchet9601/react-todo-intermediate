@@ -120,9 +120,8 @@ const TaskList: React.FC = () => {
           {filterdTodos[0]?.title && (
             <>
               <Tbody>
-                {filterdTodos.map((todo, index: number) => (
+                {filterdTodos.map((todo) => (
                   <Todo
-                    index={index}
                     id={todo.id}
                     key={todo.id}
                     uid={todo.uid}

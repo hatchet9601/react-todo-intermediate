@@ -26,7 +26,6 @@ import {
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 
 interface PROPS {
-  index: number;
   id: string;
   uid: string;
   title: string;
@@ -51,6 +50,9 @@ const Task: React.FC<PROPS> = (props) => {
   const [todoTitle, setTodoTitle] = useState(props.title);
   const [todoDate, setTodoDate] = useState(props.date);
   const [todoDetail, setTodoDetail] = useState(props.detail);
+  const [beforeTodoTitle, setBeforeTodoTitle] = useState("");
+  const [beforeTodoDate, setBeforeTodoDate] = useState(null);
+  const [beforeTodoDetail, setBeforeTodoDetail] = useState("");
 
   //Selectのvalueに合わせて、statusListのcolorを返す
   const getStatusColor = () => {
@@ -66,7 +68,10 @@ const Task: React.FC<PROPS> = (props) => {
           title: todoTitle,
         });
       } else {
-        dispatch(changeTitle({ index: props.index, title: todoTitle }));
+        dispatch(changeTitle({ id: props.id, title: todoTitle }));
+      }
+      if (beforeTodoTitle != todoTitle) {
+        savedTodoToast();
       }
       setIsEditTitle(false);
     }
@@ -76,7 +81,10 @@ const Task: React.FC<PROPS> = (props) => {
           date: todoDate,
         });
       } else {
-        dispatch(changeDate({ index: props.index, date: todoDate }));
+        dispatch(changeDate({ id: props.id, date: todoDate }));
+      }
+      if (beforeTodoDate != todoDate) {
+        savedTodoToast();
       }
       setIsEditDate(false);
     }
@@ -86,11 +94,14 @@ const Task: React.FC<PROPS> = (props) => {
           detail: todoDetail,
         });
       } else {
-        dispatch(changeDetail({ index: props.index, detail: todoDetail }));
+        dispatch(changeDetail({ id: props.id, detail: todoDetail }));
+      }
+
+      if (beforeTodoDetail != todoDetail) {
+        savedTodoToast();
       }
       setIsEditDetail(false);
     }
-    savedTodoToast();
   };
   const savedTodoToast = () => {
     toast({
@@ -119,7 +130,10 @@ const Task: React.FC<PROPS> = (props) => {
             transition={"all ease 0.3s"}
             _hover={{ borderBottom: "1px solid #ccc" }}
             pb={2}
-            onClick={() => setIsEditTitle(!isEditTitle)}
+            onClick={() => {
+              setIsEditTitle(!isEditTitle);
+              setBeforeTodoTitle(todoTitle);
+            }}
           >
             <EditIcon mr={2} />
             {props.title}
@@ -142,7 +156,10 @@ const Task: React.FC<PROPS> = (props) => {
             cursor={"pointer"}
             transition={"all ease 0.3s"}
             _hover={{ borderBottom: "1px solid #ccc" }}
-            onClick={() => setIsEditDate(!isEditDate)}
+            onClick={() => {
+              setIsEditDate(!isEditDate);
+              setBeforeTodoDate(todoDate);
+            }}
           >
             {props.date}
           </Box>
@@ -162,7 +179,10 @@ const Task: React.FC<PROPS> = (props) => {
             cursor={"pointer"}
             transition={"all ease 0.3s"}
             _hover={{ borderBottom: "1px solid #ccc" }}
-            onClick={() => setIsEditDetail(!isEditDetail)}
+            onClick={() => {
+              setIsEditDetail(!isEditDetail);
+              setBeforeTodoDetail(todoDetail);
+            }}
           >
             {props.detail ? props.detail : "詳細を入力してください"}
           </Text>
@@ -179,9 +199,7 @@ const Task: React.FC<PROPS> = (props) => {
                 status: e.target.value,
               });
             } else {
-              dispatch(
-                changeStatus({ index: props.index, status: e.target.value })
-              );
+              dispatch(changeStatus({ id: props.id, status: e.target.value }));
             }
             savedTodoToast();
           }}
@@ -208,7 +226,7 @@ const Task: React.FC<PROPS> = (props) => {
             if (user.uid) {
               deleteDoc(doc(db, "todos", props.id));
             } else {
-              dispatch(deleteTodos({ index: props.index }));
+              dispatch(deleteTodos({ id: props.id }));
             }
             toast({
               title: "タスクを削除しました",
